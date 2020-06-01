@@ -8,7 +8,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import asynchat
 import asyncore
-import datetime
+from datetime import datetime
 import errno
 import logging
 import os
@@ -43,7 +43,7 @@ LOGGER = logging.getLogger(__name__)
 def _send_ping(backend):
     if not backend.connected:
         return
-    time_passed = (datetime.datetime.utcnow() - backend.last_event_at).seconds
+    time_passed = (datetime.now(tz=None) - backend.last_event_at).seconds
     if time_passed > backend.ping_timeout:
         try:
             backend.send_ping(backend.host)
@@ -54,7 +54,7 @@ def _send_ping(backend):
 def _check_timeout(backend):
     if not backend.connected:
         return
-    time_passed = (datetime.datetime.utcnow() - backend.last_event_at).seconds
+    time_passed = (datetime.now(tz=None) - backend.last_event_at).seconds
     if time_passed > backend.server_timeout:
         LOGGER.error(
             'Server timeout detected after %ss; closing.', time_passed)
@@ -170,7 +170,7 @@ class AsynchatBackend(AbstractIRCBackend, asynchat.async_chat):
         if data:
             self.bot.log_raw(data, '<<')
         self.buffer += data
-        self.last_event_at = datetime.datetime.utcnow()
+        self.last_event_at = datetime.now(tz=None)
 
     def found_terminator(self):
         """Handle the end of an incoming message."""
